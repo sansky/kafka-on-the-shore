@@ -1,0 +1,27 @@
+
+import com.luciana.demo.model.ATMRetainedCust;
+import com.luciana.demo.kafka.ElasticSearchSender;
+import com.luciana.demo.kafka.KafkaSmsTopicSender;
+import com.luciana.demo.kafka.KafkaEmailTopicSender;
+import java.util.*;
+
+global com.luciana.demo.kafka.ElasticSearchSender elasticSearch;
+global com.luciana.demo.kafka.KafkaSmsTopicSender kafkaSms;
+global com.luciana.demo.kafka.KafkaEmailTopicSender kafkaEmail;
+
+rule "Pick communication platform - Scenario 1"
+    when
+        atmRetainedCustInstance:ATMRetainedCust(datafound == "TRUE");
+    then
+        System.out.println("Drools RBE found data TRUE! atmNo= " + atmRetainedCustInstance.getAtmno());
+        kafkaSms.smsBuilder(atmRetainedCustInstance);
+        kafkaEmail.sendEmailBlastTrue(atmRetainedCustInstance);
+end
+
+rule "Pick communication platform - Scenario 2"
+    when
+        atmRetainedCustInstance:ATMRetainedCust(datafound == "FALSE");
+    then
+        System.out.println("Drools RBE found data FALSE! atmNo= " + atmRetainedCustInstance.getAtmno());
+        kafkaEmail.sendEmailBlastFalse(atmRetainedCustInstance);
+end
